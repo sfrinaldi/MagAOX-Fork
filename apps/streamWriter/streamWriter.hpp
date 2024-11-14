@@ -946,10 +946,11 @@ void streamWriter::fgThreadExec()
         // This is the main image grabbing loop.
         while (!m_shutdown && !m_restart)
         {
-            timespec ts;
-            XWC_SEM_WAIT_TS_RETVOID(ts, m_semWaitSec, m_semWaitNSec);
+            //timespec ts;
+            //XWC_SEM_WAIT_TS_RETVOID(ts, m_semWaitSec, m_semWaitNSec);
 
-            if(sem_timedwait(sem, &ts) == 0)
+            //if(sem_timedwait(sem, &ts) == 0)
+            if(sem_trywait(sem) == 0)
             {
                 if (image.md[0].naxis > 2)
                 {
@@ -999,7 +1000,7 @@ void streamWriter::fgThreadExec()
                 ///\todo cleanup skip frame handling.
                 if (new_cnt0 == last_cnt0) //<- this probably isn't useful really
                 {
-                    log<text_log>("semaphore raised but cnt0 has not changed -- we're probably getting behind", logPrio::LOG_WARNING);
+                    //log<text_log>("semaphore raised but cnt0 has not changed -- we're probably getting behind", logPrio::LOG_WARNING);
                     ++cnt0flag;
                     if (cnt0flag > 10)
                     {
@@ -1241,6 +1242,11 @@ void streamWriter::fgThreadExec()
                     break; // This will indicate time to shutdown, loop will exit normally flags set.
                 }
 
+                if(errno == EAGAIN)
+                {
+                    mx::sys::nanoSleep(1);
+                    continue;
+                }
                 // ETIMEDOUT just means we should wait more.
                 // Otherwise, report an error.
                 if (errno != ETIMEDOUT)

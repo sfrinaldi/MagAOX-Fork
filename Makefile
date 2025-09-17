@@ -108,6 +108,7 @@ apps_tic = \
 	trippLitePDU \
 	rhusbMon \
 	dmSpeckle
+	hamCtrl
 
 
 # Apps with simulator mode

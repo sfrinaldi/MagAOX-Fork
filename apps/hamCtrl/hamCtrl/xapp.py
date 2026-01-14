@@ -829,7 +829,7 @@ class CamHam(XDevice):
             [3]- Fast Scan
         """
         self.pause_stream()
-        self.log.debug(f"Setting Readout speed. Warning- Readout speed can only be changed if sensormode is set to 'AREA' (default).")
+        self.log.info(f"Setting Readout speed. Warning- Readout speed can only be changed if sensormode is set to 'AREA' (default).")
 
         if 'target' in new_message and new_message['target'] != existing_property['current']:
             if self.cam is None:
@@ -837,25 +837,27 @@ class CamHam(XDevice):
                 return False
             # prop_setvalue(self, idprop: DCAM_IDPROP, fValue)
             sensormode = self.get_sensormode()
-            self.log.debug(f"Checking sensor mode before switching readout speed...")
+            self.log.info(f"Checking sensor mode before switching readout speed...")
             if sensormode == "area":
-                self.log.debug(f"Sensormode is area / readout speed can be changed")
+                self.log.info(f"Sensormode is area / readout speed can be changed")
                 readout_requested = float(new_message['target'])
                 self.log.info(f'Setting readout speed to {readout_requested}')                
-                self.cam.prop_setvalue(DCAM_IDPROP.BINNING, readout_requested)
+                self.cam.prop_setvalue(DCAM_IDPROP.READOUTSPEED, readout_requested)
                 readout_actual = self.cam.prop_getvalue(DCAM_IDPROP.READOUTSPEED)
                 self.log.info(f'Went to a readout speed of {readout_actual}')
                 if readout_requested != readout_actual:
                     self.log.info(f"Readout speed request does not = actual readout mode.")
+                    self.update_property(existing_property)
                 else:
                     existing_property['current'] = new_message['target']
                     existing_property['target'] = new_message['target']
                     self.readout = readout_actual
                     self.update_property(existing_property)
             else:
-                self.log.debug(f"Sensormode is set to progressive. Readout speed cannot be changed until sensormode is changed to area.")
+                self.log.info(f"Sensormode is set to progressive. Readout speed cannot be changed until sensormode is changed to area.")
         else:
             self.log.info(f"Target requested is equal to current set value for readout speed")
+
         self.start_stream()
 
 
@@ -892,10 +894,10 @@ class CamHam(XDevice):
         """
 
         sensormode = self.cam.prop_getvalue(DCAM_IDPROP.SENSORMODE)
-        self.log.info(f"In sensor mode check: {sensormode}")
+        self.log.info(f"In sensor mode check. Checking if in AREA or PROGRESSIVE Mode before changing.")
 
         if sensormode == DCAMPROP.SENSORMODE.AREA:
-            self.log.info(f"DCAMPROP.PROGRESSIVE mode is on")
+            self.log.info(f"DCAMPROP.AREA mode is on")
             return "area"
         elif sensormode == DCAMPROP.SENSORMODE.PROGRESSIVE:
             self.log.info(f"DCAMPROP.PROGRESSIVE mode is on")
@@ -1080,8 +1082,8 @@ class CamHam(XDevice):
             # Testing if this improves the delay Adi is seeing for this
             # Issue is the check if its set exactly to target when it won't be exactly the same value
             # It most likely is changing still but the properties have a delay for updating 
-            existing_property['current'] = new_message[exptime_actual]
-            existing_property['target'] = new_message[exptime_actual]
+            existing_property['current'] = new_message['target']
+            existing_property['target'] = new_message['current']
             self.exptime = exptime_actual
             self.update_property(existing_property)
         self.start_stream()

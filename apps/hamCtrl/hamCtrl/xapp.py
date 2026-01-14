@@ -385,7 +385,7 @@ class CamHam(XDevice):
         #_init_camera()
 
         # End of properties -------------------------------------------------
-        self.log.info("Set up properties complete")
+        self.log.info(f"Set up properties complete")
 
 
     def setup(self):
@@ -398,9 +398,9 @@ class CamHam(XDevice):
 
         self._init_properties()
         self.properties['fsm']['state'] = 'NOTCONNECTED'
-        self.log.info("Set FSM properties")
+        self.log.info(f"Set FSM properties")
         self.update_property(self.properties['fsm'])
-        self.log.info("Set up complete")   
+        self.log.info(f"Set up complete")   
 
 
     def update_from_camera(self):
@@ -489,14 +489,14 @@ class CamHam(XDevice):
         self.cam.cap_stop()
         self.th.join() # maybe?
         self.cam.buf_release()
-        self.log.info("Released buffer")
+        self.log.info(f"Released buffer")
         self.cam.dev_close()
         #self.camstream.close()
         Dcamapi.uninit()
 
     # Testing -> might be working now
     def start_stream(self):
-        self.log.info("Starting stream for hamamatsu")   
+        self.log.info(f"Starting stream for hamamatsu")   
         #self.log.info(f"Successfully started cap_start.")
         self.camera_stream()
         #else:
@@ -521,18 +521,18 @@ class CamHam(XDevice):
             self.th.start()
             # Release buffer
             #self.cam.buf_release()
-            #self.log.info("Released buffer")
+            #self.log.info(f"Released buffer")
         else:
             self.log.info(f"Buf_alloc(10) failed")
             #self.th.join()
             self.cam.buf_release()
-            self.log.info("Released buffer in camera_stream")
+            self.log.info(f"Released buffer in camera_stream")
     
     def stream_thread(self):
         """
         Testing
         """
-        self.log.info("In stream thread")
+        self.log.info(f"In stream thread")
         timeout = 10000 #(millisec)
         status = 0
         cam_status = self.cam.cap_status()
@@ -542,7 +542,7 @@ class CamHam(XDevice):
             cam_status = self.cam.cap_status()
             self.log.info(cam_status) # THis is reporting '1'
             #self.log.info(self.cam.cap_start(bSequence=True))
-            self.log.info("cam.cap_start working")
+            self.log.info(f"cam.cap_start working")
             while cam_status == DCAMCAP_STATUS.BUSY:
                 #if self.cam.wait_capevent_frameready(timeout):
                 #data = self.cam.buf_getlastframedata()
@@ -551,7 +551,7 @@ class CamHam(XDevice):
                 #print(self.cam.lasterr())
                 #status = self.show_framedata(data, status)
                 if self.cam.wait_capevent_frameready(timeout):
-                    #self.log.info("In cam.wait_capevent_frameready()")
+                    #self.log.info(f"In cam.wait_capevent_frameready()")
                     data = self.cam.buf_getlastframedata()
                     #print(data) # this is false / having issues doing this?
                     #if isinstance(data, bool) and not data:
@@ -563,21 +563,21 @@ class CamHam(XDevice):
                     else:
                         dcamerr = self.cam.lasterr()
                         if dcamerr.is_timeout():
-                            self.log.info("===: timeout")
+                            self.log.info(f"===: timeout")
                         else:
-                            self.log.info("Dcam.wait_event() failed with error {}".format(dcamerr))
+                            self.log.info(f"Dcam.wait_event() failed with error {}".format(dcamerr))
                 cam_status = self.cam.cap_status() # check if cap_status has been changed (e.g., when parameter change is requested)
                 #self.log.info(cam_status) # noisy, but useful for debugging
             else:
-                self.log.info("here")
+                self.log.info(f"here")
                 self.log.info(self.cam.lasterr())
-            #self.log.info("stream_thread ended?")
+            #self.log.info(f"stream_thread ended?")
         else:
-            self.log.info("Issues with capturing / cap_start or stream was triggered to end.")
+            self.log.info(f"Issues with capturing / cap_start or stream was triggered to end.")
             self.log.info(self.cam.lasterr())
 
     def pause_stream(self):
-        self.log.info("Pausing Stream")
+        self.log.info(f"Pausing Stream")
         self.cam.cap_stop()
         self.th.join() # maybe?
         self.cam.buf_release()
@@ -588,7 +588,7 @@ class CamHam(XDevice):
         """
         Testing this
         """
-        self.log.info("Trying to show framedata")
+        self.log.info(f"Trying to show framedata")
         if data.dtype == np.uint16:
             imax = np.amax(data)
             if imax > 0:
@@ -596,7 +596,7 @@ class CamHam(XDevice):
                 data = data * imul
             return 1
         else:
-            self.log.info("Issues with showing framedata")
+            self.log.info(f"Issues with showing framedata")
 
     def check_fan(self):
         """
@@ -610,15 +610,15 @@ class CamHam(XDevice):
             #cooler = dcamcon.get_propertyvalue(SENSORCOOLER)
             self.log.info(f"In check fan: {cooler}")
             if not cooler:
-                self.log.info("ISSUES WITH GRABBING SENSORCOOLER!")
+                self.log.info(f"ISSUES WITH GRABBING SENSORCOOLER!")
             elif cooler == DCAMPROP.SENSORCOOLER.ON:
-                self.log.info("Cooler is on")
+                self.log.info(f"Cooler is on")
                 return True
             elif cooler == DCAMPROP.SENSORCOOLER.OFF:
-                self.log.info("Cooler is on")
+                self.log.info(f"Cooler is on")
                 return False
             else:
-                self.log.info("other case")
+                self.log.info(f"other case")
         else:
             print("issues with dcamapi call in check fan")
         Dcamapi.uninit()
@@ -944,7 +944,7 @@ class CamHam(XDevice):
         Target Temperature:
             DCAM_IDPROP_SENSORTEMPERATURETARGET
         """
-        self.log.info("TRYING TO SET TARGET TEMP")
+        self.log.info(f"TRYING TO SET TARGET TEMP")
 
         if 'target' in new_message and new_message['target'] != existing_property['current']:
             if self.cam is None:
@@ -977,7 +977,7 @@ class CamHam(XDevice):
             DCAM_IDPROP_SENSORCOOLER (at Water Cooling only)
             __OFF, __ON, __MAX
         """
-        self.log.info("Attempting to set temperature. Not Implemented yet fully.")
+        self.log.info(f"Attempting to set temperature. Not Implemented yet fully.")
         
         #self.pause_stream()
 
@@ -1074,10 +1074,12 @@ class CamHam(XDevice):
             self.cam.prop_setvalue(DCAM_IDPROP.EXPOSURETIME, exptime_requested)
             exptime_actual = self.cam.prop_getvalue(DCAM_IDPROP.EXPOSURETIME)
             self.log.info(f'Went to an actual exposure time of {exptime_actual}')
-            #if exptime_requested != exptime_actual:
-            #    self.log.info(f"Exposure time request does not = exptime actual.")
+            if exptime_requested != exptime_actual:
+                self.log.info(f"Exposure time request does not = exptime_actual. (Expected currently for SFs)") # SF= sigfigs
             # FIXME: Should write this better
             # Testing if this improves the delay Adi is seeing for this
+            # Issue is the check if its set exactly to target when it won't be exactly the same value
+            # It most likely is changing still but the properties have a delay for updating 
             existing_property['current'] = new_message[exptime_actual]
             existing_property['target'] = new_message[exptime_actual]
             self.exptime = exptime_actual

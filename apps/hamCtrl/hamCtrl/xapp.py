@@ -330,7 +330,7 @@ class CamHam(XDevice):
 
         # Camera Mode -----------------------------------------------------------------------
         # Testing switching camera modes / readout speeds
-        nv = properties.NumberVector(name='', perm=constants.PropertyPerm.READ_WRITE)
+        nv = properties.NumberVector(name='readout', perm=constants.PropertyPerm.READ_WRITE)
         nv.add_element(DefNumber(
             name='current', label='Readout Speed', format='%3.1f',
             min=1, max=3, step=1, _value=self.readout

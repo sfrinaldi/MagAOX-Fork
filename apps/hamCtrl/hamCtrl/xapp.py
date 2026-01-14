@@ -127,6 +127,7 @@ class CamHam(XDevice):
     ### Testing this breakdown instead
     def _init_camera(self):
         print("Initalizing Hamamatsu!")
+        self.log.info(f"MagAOX-Fork Build Test")
         # initialize some defaults
         iDevice=0
         self.cam = Dcam(iDevice) # Temp hardcode
@@ -1073,8 +1074,8 @@ class CamHam(XDevice):
             self.cam.prop_setvalue(DCAM_IDPROP.EXPOSURETIME, exptime_requested)
             exptime_actual = self.cam.prop_getvalue(DCAM_IDPROP.EXPOSURETIME)
             self.log.info(f'Went to an actual exposure time of {exptime_actual}')
-            if exptime_requested != exptime_actual:
-                self.log.info(f"Exposure time request does not = exptime actual.")
+            #if exptime_requested != exptime_actual:
+            #    self.log.info(f"Exposure time request does not = exptime actual.")
             # FIXME: Should write this better
             # Testing if this improves the delay Adi is seeing for this
             existing_property['current'] = new_message[exptime_actual]

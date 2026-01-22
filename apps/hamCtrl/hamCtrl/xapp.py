@@ -1083,7 +1083,7 @@ class CamHam(XDevice):
             # Issue is the check if its set exactly to target when it won't be exactly the same value
             # It most likely is changing still but the properties have a delay for updating 
             existing_property['current'] = new_message['target']
-            existing_property['target'] = new_message['current']
+            existing_property['target'] = new_message['target']
             self.exptime = exptime_actual
             self.update_property(existing_property)
         self.start_stream()
